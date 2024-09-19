@@ -1,0 +1,8 @@
+source 'https://rubygems.org'
+gem 'bcrypt'
+gem 'dotenv'
+gem 'pg'
+gem 'puma'
+gem 'rackup'
+gem 'redis'
+gem 'sinatra'
