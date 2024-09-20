@@ -29,6 +29,19 @@ module DB
 
       DB.connect.exec_params(sql, [user['username'], user['password']])
     end
+
+    ##
+    # get a user
+    # username: string
+    def self.get(user)
+      sql = 'SELECT * FROM users WHERE username = $1'
+
+      DB.connect.exec_params(sql, [user['username']]) do |result|
+        result.each do |res|
+          return { "username": res.values_at('username')[0], "password": res.values_at('password')[0] }
+        end
+      end
+    end
   end
 end
 

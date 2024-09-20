@@ -19,3 +19,9 @@ post '/auth/create' do
 
   Auth.create_account(request_payload)
 end
+
+post '/auth/login' do
+  request_payload = JSON.parse(request.body.read)
+
+  Auth.login(request_payload, request.cookies['fileshare-website'], response)
+end

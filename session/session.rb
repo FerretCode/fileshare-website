@@ -25,16 +25,16 @@ module Session
   # write a new session to the redis cache
   # session_id: String
   # session_object: Dictionary
-  def write_session(session_id, session_object)
+  def self.write_session(session_id, session_object)
     json_str = JSON.dump(session_object)
-    @connect.set(session_id, json_str)
+    @connect.set(session_id, json_str, ex: 60 * 60 * 24 * 7)
   end
 
   ##
   # get a session from the redis cache
   # session_id: String
   # returns: object
-  def get_session(session_id)
+  def self.get_session(session_id)
     session = @connect.get(session_id)
     JSON.parse(session)
   end
