@@ -27,7 +27,7 @@ module Session
   # session_object: Dictionary
   def self.write_session(session_id, session_object)
     json_str = JSON.dump(session_object)
-    @connect.set(session_id, json_str, ex: 60 * 60 * 24 * 7)
+    connect.set(session_id, json_str, ex: 60 * 60 * 24 * 7)
   end
 
   ##
@@ -35,7 +35,7 @@ module Session
   # session_id: String
   # returns: object
   def self.get_session(session_id)
-    session = @connect.get(session_id)
+    session = connect.get(session_id)
     JSON.parse(session)
   end
 end
