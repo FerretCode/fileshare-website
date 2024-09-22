@@ -1,0 +1,52 @@
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
+  integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+></script>
+
+<div class="flex">
+  <div class="m-auto">
+    <% if not data or data.length == 0 %>
+      <h1 class="text-2xl">You have no files yet.</h1>
+    <% else %>
+      <ul class="menu bg-base-200 rounded-box w-full">
+        <% data.each do |item| %>
+          <li class="grid grid-cols-3">
+            <strong><%= item["key"].delete_prefix(username + "/") %></strong>
+            <a href="/files/sync/down/<%= item['key'].delete_prefix(username + "/") %> ">
+              (Download)</a>
+            <form method="POST" id="<%= item['key'].delete_prefix(username + '/') %>">
+              <button type="submit">(Delete)</button>
+            </form>
+          </li>
+        <% end %>
+      </ul>
+
+    <% end %>
+  </div>
+</div>
+
+<script>
+  $(function() {
+    $('form').submit(function() {
+      $.ajax({
+        type: 'POST',
+        url: "/files/sync/delete/"+$(this).attr('id'),
+      })
+      window.location.href = "/files/me"
+      return false;
+    })
+  })
+  document.addEventListener("DOMContentLoaded", () => {
+    const forms = document.querySelector("form");
+
+    for(const form of forms) {
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        window.reload()
+      })
+    }
+  })
+</script>

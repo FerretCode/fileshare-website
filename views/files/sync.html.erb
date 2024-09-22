@@ -1,0 +1,117 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<div class="flex">
+   <div class="m-auto">
+      <input class="file-input file-input-primary file-input-bordered" type="file" id="fileInput" webkitdirectory directory multiple>
+      <button class="btn btn-primary" id="uploadButton">Sync Up</button>
+      <div id="result"></div>
+   </div>
+</div>
+<div class="flex mt-10">
+   <div class="m-auto">
+      <div id="directorySelection">
+         <button id="selectDirectoryButton" class="btn btn-primary">Select Download Directory</button>
+         <span id="selectedDirectory"></span>
+         <button class="btn btn-secondary" id="refreshButton">Sync Down</button>
+      </div>
+   </div>
+</div>
+<script>
+   $(document).ready(function() {
+       let downloadDirectory;
+   
+       $('#refreshButton').click(function() {
+         $.ajax({
+           url: '/files/sync/down',
+           type: 'GET',
+           dataType: 'json',
+           success: async function(files) {
+             if (files.length === 0) {
+               $('#result').html('<p>No files found matching the keyword.</p>');
+               return;
+             }
+   
+             if (!downloadDirectory) return alert("The download directory must be set before downloading files!");
+   
+             files.forEach(async (file) => {
+               if (!file.content) return;
+   
+               await saveFile(file.key, file.content)
+             })
+           }
+         })
+       })
+   
+       $('#selectDirectoryButton').click(async function() {
+           try {
+               downloadDirectory = await window.showDirectoryPicker();
+               $('#selectedDirectory').text(`Selected: ${downloadDirectory.name}`);
+           } catch (err) {
+               console.error('Error selecting directory:', err);
+               $('#selectedDirectory').text('No directory selected');
+           }
+       });
+   
+       $('#uploadButton').click(function() {
+           var formData = new FormData();
+           var files = $('#fileInput')[0].files;
+   
+           for (var i = 0; i < files.length; i++) {
+               formData.append('files[]', files[i]);
+           }
+   
+           $.ajax({
+               url: '/files/sync/up',
+               type: 'POST',
+               data: formData,
+               processData: false,
+               contentType: false,
+               success: function(response) {
+                   console.log('success')
+                   var resultHtml = '<h2>Uploaded Files:</h2><ul>';
+                   response.forEach(function(file) {
+                       resultHtml += '<li>' + file.name + ' (' + file.size / 1000 / 1000 + ' mb)</li>';
+                   });
+                   resultHtml += '</ul>';
+                   $('#result').html(resultHtml);
+               },
+               error: function() {
+                   $('#result').html('<p>An error occurred during the upload.</p>');
+               }
+           });
+       });
+   
+       function b64toBlob(b64Data, contentType='', sliceSize=512) {
+           const byteCharacters = atob(b64Data);
+           const byteArrays = [];
+   
+           for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+               const slice = byteCharacters.slice(offset, offset + sliceSize);
+               const byteNumbers = new Array(slice.length);
+               for (let i = 0; i < slice.length; i++) {
+                   byteNumbers[i] = slice.charCodeAt(i);
+               }
+               const byteArray = new Uint8Array(byteNumbers);
+               byteArrays.push(byteArray);
+           }
+   
+           const blob = new Blob(byteArrays, {type: contentType});
+           return blob;
+       }
+   
+       async function saveFile(fileName, content) {
+           const blob = b64toBlob(content);
+           try {
+               const fileHandle = await downloadDirectory.getFileHandle(fileName.split('/').pop(), { create: true });
+               const writable = await fileHandle.createWritable();
+               await writable.write(blob);
+               await writable.close();
+               console.log(`File ${fileName} saved successfully.`);
+           } catch (error) {
+               console.error(`Error saving file ${fileName}:`, error);
+           }
+       }
+   });
+   
+   
+</script>
