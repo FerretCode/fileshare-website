@@ -25,6 +25,7 @@ module DB
     # create a user
     # user: object
     def self.create(user)
+      puts user
       sql = 'INSERT INTO users (username, password) VALUES ($1, $2)'
 
       DB.connect.exec_params(sql, [user['username'], user['password']])
