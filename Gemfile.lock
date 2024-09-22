@@ -44,10 +44,13 @@ GEM
       ruby2_keywords (~> 0.0.1)
     mutex_m (0.2.0)
     nio4r (2.7.3)
+    nokogiri (1.16.7-x86_64-linux)
+      racc (~> 1.4)
     pg (1.5.8)
     prettier_print (1.2.1)
     puma (6.4.3)
       nio4r (~> 2.0)
+    racc (1.8.1)
     rack (3.1.7)
     rack-protection (4.0.0)
       base64 (>= 0.1.0)
@@ -84,6 +87,7 @@ DEPENDENCIES
   bcrypt
   dotenv
   erb-formatter
+  nokogiri
   pg
   puma
   rackup
